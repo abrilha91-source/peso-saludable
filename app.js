@@ -109,15 +109,14 @@ const COMPRAS=[
 ["Con refri","Queso panela Lala","1-2 piezas","—",null],
 ["Con refri","Huevo Bachoco 18 pzas","10-14","—",null],
 ["Con refri","Jamón de pavo FUD Virginia 290 g","1","$60 Walmart (búsqueda)",null],
-["Suplementos","Proteína ON Gold Standard Whey 5 lb vainilla","rinde ~5 sem","$1,469.30 Amazon","B078RPW7Y3"],
-["Suplementos","Creatina ON 600 g","5 g/día","$598.65 Amazon","B002DYIZEO"],
-["Suplementos","Creatina Birdman 450 g (alternativa)","5 g/día","$479 Amazon","B089ZWVJ2K"],
 ["Equipo","Licuadora NutriBullet 600 W","1","$1,210 Amazon","B07CTBHQZK"],
 ["Equipo","Shaker BlenderBottle","1","$218.57 Amazon","B01LZQ8OYE"],
 ["Equipo","Báscula de cocina Etekcity","1","$327.70 Amazon","B0113UZJE2"]];
 function vCompras(){const H=S.get('hechas',{});const g=[...new Set(COMPRAS.map(c=>c[0]))];
  return `<div class="card"><h2>Compras</h2><p class="muted">Precios vistos el 14-oct-2026; pueden cambiar. Revisa registro COFEPRIS en suplementos.</p>
  <details><summary>¿Qué hace el botón “Agregar”?</summary><p><b>Amazon:</b> abre el enlace oficial de agregar al carrito por ASIN (te pide iniciar sesión).<br><b>Uber Eats, Rappi, DiDi Food, Mercado Libre y Walmart:</b> no permiten precargar un carrito con un enlace; la app abre la búsqueda exacta y tú tocas “Agregar” ahí.</p></details></div>
+<div class="card"><h2>Cotizaciones (Amazon MX)</h2><p class="muted">Precios por COMPRAS · ${COTIZ_FECHA} · sujetos a cambio. ⭐ = recomendada.</p>
+ ${COTIZ.map(([cat,ops])=>`<h3>${esc(cat)}</h3>${ops.map(o=>`<div style="border-bottom:1px solid #eee;padding:8px 0"><b>${o[0]?'⭐ ':''}${esc(o[1])}</b> — ${esc(o[2])}${o[3]?` <span class="muted">(${esc(o[3])})</span>`:''}<div class="row"><a class="btn sm" target="_blank" rel="noopener" href="${CART(o[4])}">🛒 Agregar</a><a class="btn sm btn2" target="_blank" rel="noopener" href="${o[5]}">Ver ficha</a></div></div>`).join('')}`).join('')}</div>
  ${g.map(gr=>`<div class="card"><h2>${gr}</h2>${COMPRAS.filter(c=>c[0]===gr).map((c,i)=>{const id=gr+i,a=c[4];return `<div style="border-bottom:1px solid #eee;padding:8px 0">
  <div class="chk ${H[id]?'on':''}" onclick="hecha('${id}')" style="border:0;min-height:40px"><div class="box">${H[id]?'✓':''}</div><span class="l"><b>${esc(c[1])}</b><br><span class="muted">${esc(c[2])} · ${esc(c[3])}</span></span></div>
  <div class="row">${a?`<a class="btn sm" target="_blank" rel="noopener" href="${CART(a)}">🛒 Agregar (Amazon)</a><a class="btn sm btn2" target="_blank" rel="noopener" href="${AMZ(a)}">Ficha</a>`:`<a class="btn sm" target="_blank" rel="noopener" href="${WM(c[1])}">Walmart Súper</a>`}
