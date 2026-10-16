@@ -7,7 +7,7 @@ const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',
 const FRASES=["No tienes que hacerlo perfecto, solo no fallar dos días seguidos.","Cada licuado es un voto por la persona que quieres ser.","Pequeño y diario le gana a grande y a veces.","Tu meta: promociones y becas. Hoy sumas un paso.","Cuando estés cansada, haz la versión corta. Cuenta igual.","Celebra cada palomita: así se construye el hábito.","El músculo se gana comiendo y descansando, no solo entrenando."];
 
 // ---------- HOY ----------
-const ITEMS=[["licuado","Licuado de la mañana (≈650 kcal)"],["c1","Snack 9:30"],["c2","Comida"],["c3","Snack 17:30"],["c4","Pre-entreno o snack"],["c5","Cena con proteína"],["gym","Gym (o descanso planeado)"],["sueno","Dormí 7 h o más"],["crea","Creatina 5 g"]];
+const ITEMS=[["licuado","Licuado de la mañana (≈650 kcal)"],["c1","Snack 9:30"],["c2","Comida"],["c3","Snack 17:30"],["c4","Pre-entreno o snack"],["c5","Cena con proteína"],["gym","Gym (o descanso planeado)"],["sueno","Dormí 7 h o más"],["crea","Creatina 3-5 g"]];
 function dia(d=hoy()){return S.get('d_'+d,{})}
 function setDia(o,d=hoy()){S.set('d_'+d,o)}
 function puntos(d){const o=dia(d);return ITEMS.filter(([k])=>o[k]).length+((o.agua||0)>=8?1:0)}
@@ -20,6 +20,7 @@ function vHoy(){const o=dia(),agua=o.agua||0,modo=S.get('modo','m');
  <h3>Agua: ${agua} de 8 vasos</h3><div class="bar"><i style="width:${Math.min(100,agua/8*100)}%"></i></div>
  <div class="row" style="margin-top:8px"><button onclick="agua(1)">+ 1 vaso</button><button class="btn2" onclick="agua(-1)">−</button></div>
  <p class="muted">Un toque por hábito. Con 6 o más palomitas el día cuenta para tu racha.</p></div>
+ ${supCard(true)}
  <div class="card"><h2>Horario sugerido</h2>${horario(modo)}</div>`}
 function horario(m){const H=m==='n'?[["5:30","Licuado"],["9:30","Snack"],["13:00-15:30","Comida + siesta máx. 30 min"],["17:30","Snack"],["19:00","Pre-entreno ligero (sin cafeína)"],["20:00-20:40","Gym"],["20:45","Batido + cena ligera"],["21:15","Relajación"],["22:30","Dormir"]]:[["5:00","Licuado"],["5:10-5:50","Gym"],["9:30","Snack"],["13:00","Comida"],["15:30","App + siesta máx. 30 min"],["17:30","Snack"],["21:00","Cena con proteína"],["21:30","Rutina de sueño"],["22:00","Dormir"]];
  return `<table>${H.map(r=>`<tr><td><b>${r[0]}</b></td><td>${r[1]}</td></tr>`).join('')}</table>`}
@@ -130,19 +131,55 @@ function vMusica(){return `<div class="card"><h2>Música</h2><p class="muted">Se
  ${PL.map(p=>`<div style="padding:8px 0;border-bottom:1px solid #eee"><b>${p[0]}</b><br><span class="muted">${esc(p[1])}</span><div class="row" style="margin-top:6px"><a class="btn sm" target="_blank" rel="noopener" href="https://music.youtube.com/playlist?list=${p[2]}">♫ YouTube Music</a><a class="btn sm btn2" target="_blank" rel="noopener" href="https://www.youtube.com/playlist?list=${p[2]}">YouTube</a></div></div>`).join('')}</div>`}
 
 // ---------- RECORDATORIOS ----------
-const REC=[["licuado","Licuado",["05:00"],"DAILY"],["agua","Agua",["07:00","09:00","11:00","13:00","15:00","17:00","19:00"],"DAILY"],["gym","Gym",["05:10"],"WEEKLY;BYDAY=MO,TU,TH,FR"],["dormir","Rutina de sueño",["21:30"],"DAILY"]];
+function recs(){const n=S.get('modo','m')==='n';return [["licuado",n?"Licuado post-gym: whey + creatina":"Licuado: whey + creatina",[n?"20:45":"05:00"],"DAILY"],["lala","Lala fría (16 g proteína)",[n?"17:30":"09:30"],"DAILY"],["creachk","Creatina: ¿ya la tomaste? (agua o jugo)",["19:00"],"DAILY"],["agua","Agua",["07:00","09:00","11:00","13:00","15:00","17:00","19:00"],"DAILY"],["gym","Gym",[n?"20:00":"05:10"],"WEEKLY;BYDAY=MO,TU,TH,FR"],["dormir","Rutina de sueño",[n?"22:00":"21:30"],"DAILY"]]}
 function vRec(){const on=S.get('notif',false),perm=('Notification' in window)?Notification.permission:'no';
- return `<div class="card"><h2>Recordatorios en tu calendario (recomendado)</h2><p>Descarga el archivo .ics y ábrelo: tu calendario crea los eventos repetidos con alarma (licuado 5:00, agua cada 2 h de 7 a 19, gym L-Ma-J-V 5:10, dormir 21:30).</p>
- <button onclick="ics()">📅 Crear eventos en mi calendario</button><p class="muted">Funciona aunque la app esté cerrada. Si entrenas a las 20:00, cambia la hora del evento “Gym” en tu calendario.</p></div>
+ return `<div class="card"><h2>Recordatorios en tu calendario (recomendado)</h2><p>Descarga el archivo .ics y ábrelo: tu calendario crea los eventos repetidos con alarma según tu horario elegido (${S.get('modo','m')==='n'?'20:00: gym 20:00, licuado post-gym 20:45, Lala 17:30':'mañana: licuado 5:00, gym 5:10, Lala 9:30'}; creatina 19:00, agua cada 2 h, dormir).</p>
+ <button onclick="ics()">📅 Crear eventos en mi calendario</button><p class="muted">Funciona aunque la app esté cerrada. Cambia el horario (5:10 / 20:00) en Hoy antes de descargar. El calendario no sabe si ya marcaste la creatina: el aviso de las 19:00 en la app sí se omite si ya la marcaste.</p></div>
  <div class="card"><h2>Avisos de la app</h2><p>Estado del permiso: <b>${perm}</b></p><div class="row"><button class="sm" onclick="pedir()">Activar avisos</button>${on?'<button class="sm btn2" onclick="S.set(\'notif\',false);render()">Desactivar</button>':''}</div>
  <p class="muted">Honestamente: el navegador solo puede avisar mientras la app está abierta o en segundo plano reciente. Para avisos confiables usa los eventos de calendario.</p></div>`}
 window.pedir=async()=>{if(!('Notification' in window))return alert('Tu navegador no soporta avisos.');const p=await Notification.requestPermission();S.set('notif',p==='granted');if(p==='granted')notif('PESO SALUDABLE','Avisos activados 💪');render()};
 function notif(t,b){navigator.serviceWorker?.ready.then(r=>r.showNotification(t,{body:b,icon:'icon-192.png'})).catch(()=>{try{new Notification(t,{body:b})}catch(e){}})}
 setInterval(()=>{if(!S.get('notif',false))return;const n=new Date(),hm=n.toTimeString().slice(0,5),key='sent_'+hoy()+hm;if(S.get(key,false))return;
- REC.forEach(([k,l,hs,f])=>{if(hs.includes(hm)&&(f==='DAILY'||[1,2,4,5].includes(n.getDay()))){notif('PESO SALUDABLE',l+' – '+FRASES[n.getMinutes()%FRASES.length]);S.set(key,true)}})},30000);
+ recs().forEach(([k,l,hs,f])=>{if(k==='creachk'&&dia().crea)return;if(k==='lala'&&dia().sl)return;if(hs.includes(hm)&&(f==='DAILY'||[1,2,4,5].includes(n.getDay()))){notif('PESO SALUDABLE',l+' – '+FRASES[n.getMinutes()%FRASES.length]);S.set(key,true)}})},30000);
 window.ics=()=>{const d=new Date(),ymd=d.toLocaleDateString('en-CA').replace(/-/g,''),st=new Date().toISOString().replace(/[-:]/g,'').slice(0,15)+'Z';let n=0;
- const ev=REC.flatMap(([k,l,hs,f])=>hs.map(h=>`BEGIN:VEVENT\r\nUID:ps-${k}-${h.replace(':','')}-${ymd}@peso-saludable\r\nDTSTAMP:${st}\r\nDTSTART;TZID=America/Mexico_City:${ymd}T${h.replace(':','')}00\r\nDURATION:PT15M\r\nRRULE:FREQ=${f}\r\nSUMMARY:${l} – PESO SALUDABLE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:${l}\r\nTRIGGER:PT0M\r\nEND:VALARM\r\nEND:VEVENT`)).join('\r\n');
+ const ev=recs().flatMap(([k,l,hs,f])=>hs.map(h=>`BEGIN:VEVENT\r\nUID:ps-${k}-${h.replace(':','')}-${ymd}@peso-saludable\r\nDTSTAMP:${st}\r\nDTSTART;TZID=America/Mexico_City:${ymd}T${h.replace(':','')}00\r\nDURATION:PT15M\r\nRRULE:FREQ=${f}\r\nSUMMARY:${l} – PESO SALUDABLE\r\nBEGIN:VALARM\r\nACTION:DISPLAY\r\nDESCRIPTION:${l}\r\nTRIGGER:PT0M\r\nEND:VALARM\r\nEND:VEVENT`)).join('\r\n');
  dl('peso-saludable-recordatorios.ics',`BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//PESO SALUDABLE//ES\r\nCALSCALE:GREGORIAN\r\nBEGIN:VTIMEZONE\r\nTZID:America/Mexico_City\r\nBEGIN:STANDARD\r\nDTSTART:19700101T000000\r\nTZOFFSETFROM:-0600\r\nTZOFFSETTO:-0600\r\nEND:STANDARD\r\nEND:VTIMEZONE\r\n${ev}\r\nEND:VCALENDAR\r\n`,'text/calendar')};
+
+// ---------- SUPLEMENTOS ----------
+const PMAX=85;
+function prot(o=dia()){return (o.sw?SUPL.whey.p:0)+(o.sl?SUPL.lala.p:0)+(o.pc||0)}
+function rachaCrea(){let n=0,t=new Date();for(;;){const d=t.toLocaleDateString('en-CA');if(dia(d).crea)n++;else if(d!==hoy())break;t.setDate(t.getDate()-1);if(n>400)break}return n}
+window.pAdd=g=>{const o=dia();o.pc=Math.max(0,(o.pc||0)+g);setDia(o);const p=prot(o);if(g>0&&p>=PMAX-10&&navigator.vibrate)navigator.vibrate([60,60,60]);render()};
+function tomaRow(k,ic,t,sub){const o=dia();return `<div class="chk ${o[k]?'on':''}" onclick="tog('${k}')"><div class="box">${o[k]?'✓':''}</div><span class="l"><b>${ic} ${t}</b><br><span class="muted">${sub}</span></span></div>`}
+function supCard(mini){const o=dia(),p=prot(o),pct=Math.min(100,p/PMAX*100),col=p>=PMAX?'#b45309':p>=PMAX-10?'#d97706':'var(--p)';
+ const msg=p>=PMAX?'⚠️ Llegaste al tope razonable (~85 g). Ya no sumes más suplementos hoy.':p>=PMAX-10?'Casi llegas: te faltan '+(PMAX-p)+' g. Con comida normal es suficiente.':'Faltan '+(PMAX-p)+' g para el tope de 85 g (meta 70-85 g).';
+ return `<div class="card supl"><div class="row" style="justify-content:space-between"><h2>💊 Suplementos</h2><span class="badge">💪 Creatina: ${rachaCrea()} días</span></div>
+ <div class="pring" style="--v:${pct};--c:${col}"><div><b>${p}</b><small>/ ${PMAX} g proteína</small></div></div>
+ <p class="muted" style="text-align:center">${msg}</p>
+ ${tomaRow('sw','🥤','Licuado con whey (1 scoop 31 g)','+'+SUPL.whey.p+' g proteína · '+SUPL.whey.kcal+' kcal del polvo')}
+ ${tomaRow('crea','⚡','Creatina 3-5 g','Diaria, aunque no entrenes · en agua o jugo si no hay licuado')}
+ ${tomaRow('sl','🧃','Lala 100 cocoa punch fría (330 ml)','+'+SUPL.lala.p+' g proteína · '+SUPL.lala.kcal+' kcal')}
+ <p class="muted" style="margin:8px 0 4px">Proteína de comida (un toque):</p>
+ <div class="row"><button class="sm btn2" onclick="pAdd(5)">+5 g</button><button class="sm btn2" onclick="pAdd(10)">+10 g</button><button class="sm btn2" onclick="pAdd(20)">+20 g</button><button class="sm btn2" onclick="pAdd(-5)" aria-label="Quitar 5 g">−5</button></div>
+ <p class="muted">Ej.: lata de atún ≈ 25 g · pechuga ≈ 25-30 g · 2 huevos ≈ 12 g · 1 vaso de leche ≈ 8 g.</p>
+ ${mini?`<button class="sm btn2" onclick="go('supl')">Ver plan y etiquetas →</button>`:''}</div>`}
+function vSupl(){const m=S.get('modo','m')==='n';return supCard(false)+`
+ <div class="card"><h2>Tu plan</h2><ol>
+ <li><b>${m?'Post-gym (≈20:45)':'Desayuno (5:00)'}: licuado</b> — 250-300 ml de leche o agua + 1 scoop whey (31 g) + 1 cucharada de creatina (3-5 g). Opcional: plátano o 1 cda de crema de cacahuate. Tómalo enseguida.</li>
+ <li><b>${m?'Media tarde (17:30)':'Media mañana (9:30)'}: 1 Lala fría</b> (o la otra hora si te acomoda mejor).</li>
+ <li><b>Creatina todos los días</b>, aunque no entrenes. Sin licuado: en agua o jugo.</li>
+ <li><b>Agua 2-2.5 L al día</b> (referencia práctica) — usa el contador de vasos en Hoy.</li>
+ <li><b>Tope de proteína ~85 g/día</b> sumando comida + suplementos.</li></ol>
+ <div class="row"><button class="sm ${m?'btn2':''}" onclick="setModo('m');go('supl')">Gym 5:10</button><button class="sm ${m?'':'btn2'}" onclick="setModo('n');go('supl')">Gym 20:00</button><button class="sm btn2" onclick="go('rec')">⏰ Recordatorios</button></div></div>
+ <div class="card"><h2>Etiquetas verificadas</h2>${['whey','crea','lala'].map(k=>{const x=SUPL[k];return `<div style="border-bottom:1px solid #eee;padding:8px 0"><b>${x.n}</b><br><span class="muted">Porción ${x.por} · ${x.p} g proteína · ${x.kcal} kcal${x.extra?' · '+x.extra:''}</span><br><a href="${x.url}" target="_blank" rel="noopener">Fuente: ${x.src}</a></div>`}).join('')}
+ <p class="muted">Verificado el ${SUPL_FECHA}. Revisa la etiqueta de tu envase: puede variar por lote o país.</p></div>
+ <div class="card"><h2>Precauciones</h2><ul>
+ <li>Si tienes enfermedad renal, estás embarazada o lactando: no los tomes sin indicación médica.</li>
+ <li>La creatina puede subir 1-2 kg por agua en el músculo (normal, no es grasa).</li>
+ <li>Compra productos con registro/aviso COFEPRIS en la etiqueta.</li>
+ <li>La Lala contiene azúcares; 1 al día como snack.</li>
+ <li>Consulta a tu médico antes de empezar, sobre todo si tienes examen médico.</li></ul>
+ <p class="quote" style="font-style:normal"><b>Información, no prescripción.</b> Fuentes: <a href="https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0177-8" target="_blank">ISSN proteína</a> · <a href="https://jissn.biomedcentral.com/articles/10.1186/s12970-017-0173-z" target="_blank">ISSN creatina</a> · <a href="https://ods.od.nih.gov/factsheets/ExerciseAndAthleticPerformance-DatosEnEspanol/" target="_blank">NIH ODS</a> · <a href="https://medlineplus.gov/spanish/dietarysupplements.html" target="_blank">MedlinePlus</a> · <a href="https://www.gob.mx/cofepris" target="_blank">COFEPRIS</a></p></div>`}
 
 // ---------- INFO ----------
 function vInfo(){return `<div class="card"><h2>Fuentes</h2><ul>
@@ -157,7 +194,7 @@ function vInfo(){return `<div class="card"><h2>Fuentes</h2><ul>
 <button class="sm btn2" onclick="if(confirm('¿Borrar todos tus datos de este teléfono?')){Object.keys(localStorage).filter(k=>k.startsWith('ps_')).forEach(k=>localStorage.removeItem(k));render()}">Borrar mis datos</button></div>`}
 
 // ---------- NAV ----------
-const TABS=[["hoy","✅","Hoy",vHoy],["entreno","🏋️","Entreno",vEntreno],["progreso","📈","Progreso",vProg],["comida","🍽️","Comida",vComida],["compras","🛒","Compras",vCompras],["musica","🎵","Música",vMusica],["rec","⏰","Avisos",vRec],["info","ℹ️","Info",vInfo]];
+const TABS=[["hoy","✅","Hoy",vHoy],["entreno","🏋️","Entreno",vEntreno],["progreso","📈","Progreso",vProg],["comida","🍽️","Comida",vComida],["compras","🛒","Compras",vCompras],["musica","🎵","Música",vMusica],["rec","⏰","Avisos",vRec],["supl","💊","Suplem.",vSupl],["info","ℹ️","Info",vInfo]];
 let tab=location.hash.slice(1)||'hoy';
 window.go=t=>{tab=t;location.hash=t;render();scrollTo(0,0)};
 function render(){const T=TABS.find(t=>t[0]===tab)||TABS[0];$('#m').innerHTML=T[3]();$('#nav').innerHTML=TABS.map(t=>`<button class="${t[0]===T[0]?'on':''}" onclick="go('${t[0]}')"><b>${t[1]}</b>${t[2]}</button>`).join('')}

@@ -13,3 +13,10 @@ const COTIZ=[
 ["Botella infusora",[
  [0,"AquaFrut 24 oz","$456.45","32 oz ~$358 en la misma página","B01NAJDBUS","https://www.amazon.com.mx/Botella-infusor-frutas-inferior-abierta/dp/B01NAJDBUS"],
  [0,"Lexlion 32 oz térmica","$851.71","","B08RD7G16B","https://www.amazon.com.mx/Lexlion-inoxidable-deportes-mantiene-caliente/dp/B08RD7G16B"]]]];
+
+// Suplementos confirmados — etiquetas verificadas 16/oct/2026
+const SUPL_FECHA="16/oct/2026";
+const SUPL={
+ whey:{n:"ON Gold Standard 100% Whey · Double Rich Chocolate 2 lb (899 g)",por:"31 g (1 scoop)",p:24,kcal:120,extra:"3 g carbs, 1 g azúcar, 29 porciones",url:"https://www.iherb.com/pr/optimum-nutrition-gold-standard-100-whey-protein-double-rich-chocolate-1-98-lb-899-g/27497",src:"iHerb (etiqueta 2 lb chocolate)"},
+ crea:{n:"Birdman Creatina Monohidratada · Performance Series 450 g",por:"5 g (1 cucharada)",p:0,kcal:0,extra:"5 g creatina, 90 porciones",url:"https://mx.birdman.com/products/creatina-monohidratada-450g",src:"Birdman MX (oficial)"},
+ lala:{n:"Lala 100 sin lactosa +Proteína · Cocoa Punch 330 ml",por:"330 ml (botella)",p:16,kcal:210,extra:"≈21 g azúcares",url:"https://mx.openfoodfacts.org/producto/7501020556841/leche-deslactosada-45-g-de-proteina-con-cacao-lala",src:"Open Food Facts (foto de etiqueta)"}};
